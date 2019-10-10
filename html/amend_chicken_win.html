@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            /*background: #1296db;*/
+        }
+
+        #header {
+            color: white;
+            background: #1296db;
+            padding: 0.2rem 0.1rem 0 0.1rem;
+        }
+
+        .eui-order {
+            display: flex;
+            height: 0.5rem;
+            line-height: 0.5rem;
+            background: #FFFFFF;
+        }
+
+        .eui-phone {
+            width: 25%;
+            color: #6B6A6F;
+            text-align: right;
+            padding: 0 0.05rem;
+        }
+
+        .eui-order-input {
+            width: 75%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .eui-order-input img {
+            width: 0.32rem;
+            height: 0.32rem;
+            position: fixed;
+            right: 0.25rem;
+        }
+
+        .eui-order input {
+            width: 90%;
+            height: 0.4rem;
+            padding: 0 0.1rem;
+            border-radius: 0.05rem;
+            border: 0.01rem solid #A7A6A9;
+        }
+
+        .eui-btns {
+            margin-top: 0.35rem;
+        }
+
+        .eui-btn {
+            width: 80%;
+            margin: 0 auto;
+            height: 0.5rem;
+            color: #FAFDFF;
+            background: #39A7FE;
+            border-radius: 0.03rem;
+            box-shadow: 0 0.05rem 0 #DDE5F1;
+        }
+
+        .eui-miaoshu {
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            justify-content: center;
+        }
+
+        .eui-textarea {
+            width: 75%;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        textarea {
+            width: 90%;
+            height: 2rem;
+            overflow-y: auto;
+            padding: 0 0.1rem;
+            font-size: 0.15rem;
+            border-radius: 0.05rem;
+            border: 0.01rem solid #A7A6A9;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title" v-cloak>
+                修改鸡厂信息
+            </div>
+        </div>
+    </header>
+    <div class="eui-order">
+        <div class="eui-phone" v-cloak>鸡厂名称：</div>
+        <div class="eui-order-input">
+            <input type="text" placeholder="请输入鸡厂名称" v-model="chickenDetail.chickenName"/>
+        </div>
+    </div>
+    <div class="eui-order">
+        <div class="eui-phone" v-cloak>负责人：</div>
+        <div class="eui-order-input">
+            <input type="text" placeholder="请输入负责人姓名" v-model="chickenDetail.fuzeren"/>
+        </div>
+    </div>
+    <div class="eui-order">
+        <div class="eui-phone" v-cloak>地址：</div>
+        <div class="eui-order-input">
+            <input type="text" placeholder="请输入地址" v-model="chickenDetail.address"/>
+            <img src="../images/ditu.png" @click="util.app.openWindow('window-map','map_win.html')">
+        </div>
+    </div>
+    <div class="eui-order">
+        <div class="eui-phone" v-cloak>面积：</div>
+        <div class="eui-order-input">
+            <input type="text" placeholder="请输入面积" v-model="chickenDetail.area"/>
+        </div>
+    </div>
+    <div class="eui-miaoshu">
+        <div class="eui-phone" v-cloak>鸡厂描述：</div>
+        <div class="eui-textarea">
+            <textarea v-model="chickenDetail.detail"></textarea>
+        </div>
+    </div>
+    <div class="eui-btns" @click="submit()">
+        <button class="eui-btn" v-cloak>确认修改</button>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-amend-chicken',
+                id: null,
+                chickenDetail: {}
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            $this.id = $api.getStorage('USER').id;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getchickenDetail();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+                util.app.listen('address', function (event) {
+                    $this.chickenDetail.address = event.value;
+                })
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname);
+            },
+            formCheck() {
+                var $this = this;
+                if (!$this.chickenDetail.chickenName) {
+                    util.app.toast('请输入鸡厂名称!');
+                    return false;
+                }
+                if (!$this.chickenDetail.fuzeren) {
+                    util.app.toast('请输入负责人姓名!');
+                    return false;
+                }
+                if (!$this.chickenDetail.area) {
+                    util.app.toast('请输入面积!');
+                    return false;
+                }
+                if (!$this.chickenDetail.address) {
+                    util.app.toast('请输入地址!');
+                    return false;
+                }
+                if (!$this.chickenDetail.detail) {
+                    util.app.toast('请输入鸡厂描述!');
+                    return false;
+                }
+                return true;
+            },
+            getchickenDetail: function () {
+                var $this = this;
+                apiservice.getChickenDetail($this.id).then(function (res) {
+                    if (res) {
+                        $this.chickenDetail = res;
+                    }
+                })
+            },
+            submit() {
+                var $this = this;
+
+                if ($this.formCheck()) {
+                    apiservice.saveChicken($this.chickenDetail).then((res) => {
+                        if (res) {
+                            util.app.toast('修改成功');
+                            $this.close();
+                        }
+                    });
+                }
+            }
+        }
+    });
+</script>
+
+</html>

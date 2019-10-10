@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 0 .1rem;
+            background: #a7a7a736;
+        }
+
+        .shebei {
+            color: black;
+            height: 1.3rem;
+            margin-top:.1rem;
+            background: #f7f7f7;
+            border-radius: 10px;
+            padding: .1rem 0.16rem;
+            border: .01rem solid #e2e2e2;
+        }
+
+        .item {
+            display: flex;
+            color: #1296DB;
+            /*height: 0.6rem;*/
+            margin-top: .1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /*开关按钮*/
+        .model {
+            display: inline-block;
+            margin-right: 0.2rem;
+        }
+
+        .switch {
+            height: 0.2rem;
+            width: .35rem;
+            background: #ccc;
+            overflow: hidden;
+            position: relative;
+            border-radius: 0.3rem;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .switch input {
+            visibility: hidden;
+        }
+
+        .switch span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: #fff;
+            border-radius: 50%;
+            transition: all linear 0.2s;
+        }
+
+        .switch span::before {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            content: '';
+            width: 200%;
+            height: 100%;
+            background: #15bc4c;
+            border-radius: 0.3rem;
+        }
+
+        .switch span::after {
+            top: 0;
+            left: 0;
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .switch span.checked {
+            transform: translateX(100%);
+        }
+
+        .btn {
+            color: #fff;
+            width: 0.4rem;
+            height: 0.25rem;
+            background: #1296DB;
+            text-align: center;
+            line-height: .25rem;
+            margin-right: 0.2rem;
+            border-radius: 0.05rem;
+        }
+
+        .eui-model-container {
+            top: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-color: rgba(90, 90, 90, 0.5);
+        }
+
+        .eui-model-container.active {
+            display: none;
+        }
+
+        .eui-model {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 90%;
+            margin: auto;
+            height: 2.5rem;
+            padding: 0.1rem 0;
+            text-align: right;
+            position: absolute;
+            background: #ffffff;
+            border-radius: 0.1rem;
+        }
+
+        .item-list {
+            display: flex;
+            height: 0.4rem;
+            align-items: center;
+        }
+
+        .item-txt {
+            width: 35%;
+            text-align: right;
+        }
+
+        .eui-modal {
+            height: 0.35rem;
+            margin: 0.05rem 0;
+            padding-left: 0.1rem;
+            border-radius: 0.05rem;
+            border: 0.01rem solid #666666;
+        }
+
+        .item-btns {
+            display: flex;
+            margin: 0.1rem 0;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .item-btn {
+            width: 1rem;
+            display: flex;
+            color: #ffffff;
+            height: 0.45rem;
+            align-items: center;
+            background: #1296db;
+            border-radius: 0.05rem;
+            justify-content: center;
+        }
+
+        .eui-footer {
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            height: 0.5rem;
+            position: fixed;
+            align-items: center;
+            justify-content: space-around;
+            background: #1296db;
+        }
+
+        .eui-footer-item, img {
+            width: 0.3rem;
+            height: 0.3rem;
+            display: block;
+        }
+
+        .eui-loading {
+            color: black;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <div v-if="yuangongList">
+        <div class="shebei"  v-for="(yuangong,index) in yuangongList">
+            <div class="item">
+                <div>
+                    <div v-cloak>员工姓名：{{yuangong.employeeName}}</div>
+                    <div v-cloak>员工手机号：{{yuangong.employeePhone}}</div>
+                </div>
+                <section class='model' @click="changeState(index, yuangong)">
+                    <label class='switch'>
+                        <span :class="{checked:yuangong.status === 'QIYONG'}"></span>
+                    </label>
+                </section>
+            </div>
+            <div class="item line">
+                <div>
+                    <div v-cloak>员工身份证号码:{{yuangong.employeeIdCard}}</div>
+                    <div v-cloak>员工状态：{{yuangong.status==='JINYONG'? '禁用':'启用'}}</div>
+                </div>
+                <div class="btn" @click="modalinput(yuangong,index)" v-cloak>修改</div>
+            </div>
+        </div>
+    </div>
+    <div class="eui-model-container" :class="{active:checkAmend}">
+        <div class="eui-model">
+            <div class="item-list">
+                <div class="item-txt" v-cloak>姓名：</div>
+                <input v-cloak class="eui-modal" type='text' placeholder="请输入姓名" v-model="slectVlaue.employeeName"/>
+            </div>
+            <div class="item-list">
+                <div class="item-txt" v-cloak>电话号码：</div>
+                <input v-cloak class="eui-modal" type='tel' maxlength="11" placeholder="请输入电话号码"
+                       v-model="slectVlaue.employeePhone"/>
+            </div>
+            <div class="item-list">
+                <div class="item-txt" v-cloak>身份证号码：</div>
+                <input v-cloak class="eui-modal" type='text' placeholder="请输入身份证号" v-model="slectVlaue.employeeIdCard"/>
+            </div>
+            <div class="item-list">
+                <div class="item-txt" v-cloak>地址：</div>
+                <input v-cloak class="eui-modal" type='text' placeholder="请输入地址" v-model="slectVlaue.employeeAddress"/>
+            </div>
+            <div class="item-btns">
+                <div class="item-btn" v-cloak @click="cancel()">取消</div>
+                <div class="item-btn" v-cloak @click="confirm()">确定</div>
+            </div>
+        </div>
+    </div>
+<!--    <div class="eui-footer">-->
+<!--        <div class="eui-footer-item">-->
+<!--            <img src="../images/flower-active.png" alt="">-->
+<!--        </div>-->
+<!--        <div class="eui-footer-item" @click="util.app.openWindow('window_add_device','./add_device_win.html')">-->
+<!--            <img src="../images/5.png" alt="">-->
+<!--        </div>-->
+<!--        <div class="eui-footer-item" @click="util.app.openWindow('window-home','./home_win.html')">-->
+<!--            <img src="../images/man.png" alt="">-->
+<!--        </div>-->
+<!--    </div>-->
+    <div class="eui-loading" style="margin-right: 15px;">
+        <block>
+            <text></text>
+            <block v-if="yuangongList.length === 0">没有查询到数据</block>
+            <block v-else>没有更多数据了</block>
+            <text></text>
+        </block>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-staff',
+                id: null,
+                yuangongList: [],
+                checkAmend: true,
+                checkValue: null,
+                slectVlaue: {},
+                selectIndex: null,
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            var user=$api.getStorage('USER');
+
+            $this.roleName = user.roleName;
+            if($this.roleName==='YUANGONG'){
+                $this.id = user.orgId;
+            }else{
+                $this.id = user.id;
+            }
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getStaff();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            },
+            changeState: function (index, data) {
+                var $this = this;
+                $this.checkValue = data.status === 'QIYONG' ? true : false;
+                $this.checkValue = !$this.checkValue;
+                var parameter = {
+                    empId: data.id,
+                    status: $this.checkValue,
+                };
+                apiservice.changeState(parameter).then(function (res) {
+                    if (res) {
+                        $this.yuangongList[index].status = res.status;
+                    }
+                });
+            },
+            modalinput(yuangong, index) {
+                var $this = this;
+                $this.slectVlaue = Object.assign({}, yuangong);
+                $this.selectIndex = index;
+                $this.checkAmend = !$this.checkAmend;
+            },
+            cancel() {
+                var $this = this;
+                $this.slectVlaue = {};
+                $this.checkAmend = true;
+            },
+            confirm() {
+                var $this = this;
+                if (!$this.slectVlaue.employeeName) {
+                    util.app.toast('请输入员工姓名!');
+                    return false;
+                }
+                if (!$this.slectVlaue.employeePhone) {
+                    util.app.toast('请输入手机号码!');
+                    return false;
+                }
+                if (!util.string.isPhone($this.slectVlaue.employeePhone)) {
+                    util.app.toast('电话号码输入不正确!');
+                    return false;
+                }
+                if (!$this.slectVlaue.employeeIdCard) {
+                    util.app.toast('请输入身份证号码!');
+                    return false;
+                }
+                if (!util.string.isIdcard($this.slectVlaue.employeeIdCard)) {
+                    util.app.toast('请输入身份证号码!');
+                    return false;
+                }
+                if (!$this.slectVlaue.employeeAddress) {
+                    util.app.toast('请输入地址!');
+                    return false;
+                }
+                apiservice.saveSatae($this.slectVlaue).then((res) => {
+                    $this.yuangongList[$this.selectIndex] = res;
+                    $this.$forceUpdate();
+                    util.app.toast('修改成功');
+                }).catch((error) => {
+                    if (error) {
+                        util.app.toast('修改失败');
+                    }
+                });
+                $this.checkAmend = true;
+            },
+            getStaff: function () {
+                var $this = this;
+                apiservice.getStaffMessage($this.id).then(function (res) {
+                    if (res) {
+                        $this.yuangongList = res;
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+</html>

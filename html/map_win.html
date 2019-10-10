@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            /*background: #1296db;*/
+        }
+
+        #header {
+            color: white;
+            background: #00AAAA;
+            padding: 0.2rem 0.1rem 0 0.1rem;
+        }
+
+        #container {
+            width: 100%;
+            height: calc(100% - 0.65rem);
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript"
+            src="https://webapi.amap.com/maps?v=1.4.15&key=556709f75c530f74618cf82e2ef7ac0e"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title" v-cloak>
+                定位
+            </div>
+            <div v-cloak @click="chooseLocation()">
+                确定
+            </div>
+        </div>
+    </header>
+    <div id='container'></div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-map',
+                lng: null,
+                lat: null,
+                location: [],
+                address: null,
+                map: null,
+                markers: []
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.map = new AMap.Map('container', {
+                    resizeEnable: true
+                });
+
+                $this.map.on('complete', function () {
+                    $this.mapGeolocation();
+                    $this.mapEvent();
+                });
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname);
+            },
+            mapGeolocation: function () {
+                var $this = this;
+                $this.map.plugin('AMap.Geolocation', function () {
+                    var geolocation = new AMap.Geolocation({
+                        GeoLocationFirst: true,
+                        enableHighAccuracy: false,//是否使用高精度定位，默认:true
+                        timeout: 100000,          //超过10秒后停止定位，默认：5s
+                        buttonPosition: 'RB',    //定位按钮的停靠位置
+                        buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+                        zoomToAccuracy: true,   //定位成功后是否自动调整地图视野到定位点
+                        showMarker: true,
+                        markerOptions: {}
+
+                    });
+                    $this.map.addControl(geolocation);
+                    geolocation.getCurrentPosition(function (status, result) {
+                        if (status + '' === 'complete') {
+                            $this.address = result.formattedAddress;
+                        } else {
+                            alert(JSON.stringify(result));
+                        }
+                    });
+                });
+            },
+            mapEvent: function () {
+                var $this = this;
+                $this.map.on('click', function (e) {
+                    $this.map.remove($this.markers);
+
+                    var marker = new AMap.Marker({
+                        position: e.lnglat,
+                        map: $this.map
+                    });
+                    $this.markers.push(marker);
+                    $this.regeocoder(e.lnglat);
+                });
+            },
+            regeocoder: function (lnglat) {
+                var $this = this;
+                AMap.plugin('AMap.Geocoder', function () {
+                    var geocoder = new AMap.Geocoder({
+                        radius: 1000,
+                        extensions: "all"
+                    });
+                    geocoder.getAddress(lnglat, function (status, result) {
+                        if (status === 'complete' && result.info === 'OK') {
+                            $this.address = result.regeocode.formattedAddress;
+                        }
+                    })
+                })
+            },
+            chooseLocation: function () {
+                var $this = this;
+                util.app.emit('address', $this.address);
+                $this.close();
+            }
+        }
+    });
+</script>
+
+</html>

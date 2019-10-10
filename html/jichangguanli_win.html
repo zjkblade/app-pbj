@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #a7a7a736;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+
+        .eui-item-top {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            margin: 20px 0 auto;
+            align-items: center;
+            background-color: #1296db;
+        }
+
+        .eui-item-one {
+            margin: 0 20px;
+        }
+
+        .eui-item-one img {
+            width: 70px;
+            height: 70px;
+        }
+
+        .eui-item-middle {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0 0;
+            border-bottom: 1px solid #8a8a8a;
+        }
+
+        .eui-middle-one {
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            background-color: #1296db;
+        }
+
+        .eui-middle-two {
+            height: calc(300px - 60px);
+            /*background-color: pink;*/
+        }
+
+        .eui-item-bottom {
+            width: 100%;
+            height: 80px;
+            display: flex;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #1296db;
+            justify-content: space-between;
+        }
+
+        .eui-bottom-btn {
+            width: 45%;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            border-radius: 10px;
+            background: #1296db;
+            padding: 0.2rem 0.1rem 0 0.1rem;
+        }
+
+        .eui-container {
+            margin-top: 0.1rem;
+            background: #1296db;
+            padding: 0 0.15rem 0.15rem;
+
+        }
+
+        .eui-card-header {
+            display: flex;
+            padding: 0.1rem;
+            align-items: center;
+        }
+
+        .eui-item {
+            width: 100%;
+            align-items: center;
+            min-height: 0.49rem;
+            display: flex !important;
+            justify-content: space-between;
+        }
+
+        .eui-item-left {
+            display: flex;
+            color: #666666;
+            font-size: 0.16rem;
+            align-items: center;
+            padding-right: 0.1rem;
+            justify-content: flex-start;
+        }
+
+        .eui-item-body {
+            width: 80%;
+        }
+
+        .eui-info {
+            color: #ffffff;
+        }
+
+        .eui-info-item {
+            color: white;
+            font-size: 0.13rem;
+        }
+
+        .eui-image {
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: .1rem;
+        }
+
+        .eui-grid-column {
+            width: 100%;
+            height: 0.5rem;
+            color: #ffffff;
+            line-height: 0.5rem;
+            text-align: center;
+            background: #1296db;
+        }
+
+        .eui-list .eui-item .eui-item-body {
+            flex: 1;
+            color: #888888;
+            overflow: hidden;
+        }
+
+        .eui-card-content {
+            border: none;
+            padding: 0.15rem;
+            overflow-y: auto;
+            font-size: 0.14rem;
+            word-break: break-word;
+            height: calc(100vh - 3rem);
+        }
+
+        .eui-bottom {
+            border: none;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .eui-bottom.active {
+            display: none;
+        }
+
+        .eui-btn {
+            width: 1rem;
+            color: #ffffff;
+            background: #1296db;
+            border-radius: 0.05rem;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                <div class="header-title" v-cloak>
+                    基地管理
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="eui-container">
+        <div class="eui-card-header">
+            <div class="eui-item">
+                <div class="eui-item-left">
+                    <!--                        <img v-if="{{photo}}" lazy-load="{{true}}" class="eui-image" src="{{photo}}">-->
+                    <img class="eui-image" :src="prefix + '/' + jichangDatas.photo">
+                </div>
+                <div class="eui-item-body">
+                    <div class="eui-info" v-cloak>
+                        {{jichangDatas.chickenName?jichangDatas.chickenName:'暂无详情'}}
+                    </div>
+                    <div class="eui-info-item" v-cloak>
+                        负责人：{{jichangDatas.fuzeren?jichangDatas.fuzeren:'暂无详情'}}
+                    </div>
+                    <div class="eui-info-item" v-cloak>
+                        地址：{{jichangDatas.address?jichangDatas.address:'暂无详情'}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <div class="eui-grid-column" v-cloak>
+            基地描述
+        </div>
+        <div class="eui-card-content" v-cloak>
+            {{jichangDatas.detail?jichangDatas.detail:'暂无描述'}}
+        </div>
+    </div>
+    <div class="eui-bottom"  :class="{active:roleName === 'YUANGONG'}">
+        <div class="eui-btn" v-cloak @click="util.app.openWindow('window-amend-chicken','./amend_chicken_win.html')">
+            修改信息
+        </div>
+        <div class="eui-btn" v-cloak @click="util.app.openWindow('window-updateImg','./updateImg_win.html')">
+            上传图片
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-jichangguanli',
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+                id: null,
+                jichangDatas: {},
+                roleName: null
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            var user=$api.getStorage('USER');
+
+            $this.roleName = user.roleName;
+            if($this.roleName==='YUANGONG'){
+                $this.id = user.orgId;
+            }else{
+                $this.id = user.id;
+            }
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getChickenInfo();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname);
+            },
+            getChickenInfo: function () {
+                var $this = this;
+                apiservice.getChickenDetail($this.id).then(function (res) {
+                    if (res) {
+                        $this.jichangDatas = res;
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+</html>

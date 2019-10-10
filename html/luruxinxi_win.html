@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #F4F4F4;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0 0.1rem;
+            background-color: #1296db;
+            border-bottom: 1px solid white;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+
+        .top-title {
+            width: 100%;
+            height: 50px;
+            color: black;
+            display: flex;
+            font-size: 16px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eui-item-conter {
+            width: 95%;
+            height: 268px;
+            margin: 20% auto;
+            border-radius: 10px;
+            border: 1px solid black;
+            background-color: white;
+        }
+
+        .eui-item-top {
+            width: 100%;
+            color: white;
+            padding: 0 20px;
+            line-height: 50px;
+            text-align: center;
+            border-bottom: 1px solid black;
+        }
+
+
+        .eui-top-right img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .eui-item-bottom {
+            width: 100%;
+            height: 180px;
+            /*margin: 0 auto;*/
+        }
+
+        .eui-bottom-one {
+            width: 100%;
+            height: 95px;
+            color: black;
+            display: flex;
+            font-size: 18px;
+            padding-left: 3%;
+            margin: 60px auto;
+            align-items: center;
+            justify-content: center;
+        }
+        .title-name{
+            width: 50%;
+            overflow:hidden;
+            display:-webkit-box;
+            -webkit-line-clamp:1;
+            word-break:break-all;
+            text-overflow:ellipsis;
+            -webkit-box-orient:vertical;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                录入信息
+            </div>
+        </div>
+    </header>
+    <div class="eui-item-conter">
+        <div class="eui-item-top">
+            <div class="top-title">
+                当前鸡场：
+                <div class="title-name">
+                    {{chickenName}}
+                </div>
+            </div>
+        </div>
+        <div class="eui-item-bottom">
+            <div class="eui-bottom-one">
+                点击右边图片按钮开始录入：<img src="../images/saoyisao.svg" alt="" @click="succe()">
+            </div>
+        </div>
+        <div>
+            <div style="color: red;font-size: 18px">提示:</div>
+            <div>此功能为扫描鸡环二维码，请勿扫描其他二维码，以免出错！</div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-luruxinxi',
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+                scanCodeMsg: '',
+                chickenName: '',
+                jichang: [],
+                id: null,
+                orgId: '',
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                $this.id = $api.getStorage('USER').id;
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getxinxi();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow(this.winname);
+            },
+            //获取鸡场名称
+            getxinxi: function () {
+                var $this = this;
+                apiservice.jichangxinxi($this.id).then(function (resp) {
+                    $this.chickenName = resp.chickenName;
+                })
+            },
+            //打开扫一扫,录入鸡环信息
+            succe: function () {
+                var $this = this;
+                var FNScanner = api.require('FNScanner');
+                FNScanner.openScanner({
+                    autorotation: true
+                }, function (ret, err) {
+                    if (ret) {
+                        if (ret.eventType === 'success') {
+                            apiservice.luruxinxi($this.id, [ret.content]).then(function (res) {
+                                util.app.toast('录入成功');
+                                        $this.succe()
+                            })
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #1296db;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0 0 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+
+        .eui-item-parent {
+            width: 95%;
+            height: 5rem;
+            margin: 0 auto;
+            overflow-y: auto;
+            border-radius: .1rem;
+            background-color: #F4F4F4;
+        }
+
+        .head-icon {
+            width: 100%;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .head-icon img {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .eui-equipment-name {
+            width: 100%;
+            display: flex;
+            color: #A09FAF;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .eui-list .eui-item .eui-item-left {
+            width: 1rem;
+        }
+
+        .eui-btns {
+            width: 80%;
+            margin: 0.2rem 0;
+        }
+
+        .eui-btn {
+            height: 0.5rem;
+        }
+
+        .actions {
+            display: block;
+            font-size: 0.14rem;
+        }
+
+        .actions a {
+            margin-left: 0.16rem;
+            text-decoration: underline;
+        }
+
+        .eui-captcha .eui-btn {
+            width: 0.85rem;
+            font-size: 0.14rem;
+            height: 0.3rem !important;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <!--<script src="../script/lib/api.min.js"></script>-->
+    <script src="../script/api.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left eui-icon-back" @click="close()"></div>
+            <div class="header-title">注册</div>
+        </div>
+    </header>
+    <div class="eui-item-parent">
+<!--        <div class="head-icon">-->
+<!--            <img src="../images/Logo.png" alt="">-->
+<!--        </div>-->
+        <div class="eui-equipment-name">
+            <div class="eui-list">
+                <div class="eui-item">
+                    <div class="eui-item-left">账户名称</div>
+                    <div class="eui-item-body">
+                        <input type="tel" class="eui-input" placeholder="请输入手机号码" v-model="form.phonenum"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">验证码</div>
+                    <div class="eui-item-body">
+                        <input class="eui-input" placeholder="请输入验证码" v-model="form.smscode"/>
+                    </div>
+                    <div class="eui-item-right eui-captcha">
+                        <button class="eui-btn eui-bg-passive" @click="getCaptcha()">
+                            {{isCutdown ? timer + 'S' : '获取验证码'}}
+                        </button>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">密码</div>
+                    <div class="eui-item-body">
+                        <input type="password" class="eui-input" placeholder="请输入密码" v-model="form.password"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">确认密码</div>
+                    <div class="eui-item-body">
+                        <input type="password" class="eui-input" placeholder="请输入确认密码" v-model="form.affirmPassword"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">基地名称</div>
+                    <div class="eui-item-body">
+                        <input type="text" class="eui-input" placeholder="请输入基地名称" v-model="form.baseName"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">负责人</div>
+                    <div class="eui-item-body">
+                        <input type="text" class="eui-input" placeholder="请输入负责人姓名" v-model="form.principal"/>
+                    </div>
+                </div>
+            </div>
+            <div class="eui-btns">
+                <button class="eui-btn eui-bg-passive" @click="register()">注册</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-register',
+
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+
+                form: {
+                    phonenum: '',
+                    smscode: '',
+                    password: '',
+                    affirmPassword: '',
+                    baseName: '',
+                    principal: ''
+                }
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                clearInterval($this.interval);
+                util.app.closeWindow(this.winname);
+            },
+            getCaptcha: function () {
+                var $this = this;
+                if (!$this.isCutdown && $this.formCheckPhonenum()) {
+                    $this.isCutdown = true;
+                    apiservice.gensmscode($this.form.phonenum).then(function (resp) {
+                        console.log(resp);
+                    });
+                    $this.interval = setInterval(function () {
+                        if (--$this.timer === 0) {
+                            clearInterval($this.interval);
+                            $this.timer = $this.cutdownTime;
+                            $this.isCutdown = false;
+                        }
+                    }, 1000);
+                }
+            },
+            formCheckPhonenum: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                return true;
+            },
+            formCheck: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                if (!$this.form.smscode) {
+                    util.app.toast('请输入验证码');
+                    return false;
+                }
+                if (!$this.form.password) {
+                    util.app.toast('请输入密码');
+                    return false;
+                }
+                if (!this.form.affirmPassword) {
+                    util.app.toast('请输入确认密码!');
+                    return false;
+                }
+                if (this.form.password !== this.form.affirmPassword) {
+                    util.app.toast('两次密码输入不一样!');
+                    return false;
+                }
+                if (!this.form.baseName) {
+                    util.app.toast('请输入基地名称!');
+                    return false;
+                }
+                if (!this.form.principal) {
+                    util.app.toast('请输入负责人姓名!');
+                    return false;
+                }
+                return true;
+            },
+            register: function () {
+                var $this = this;
+                if ($this.formCheckPhonenum() && $this.formCheck()) {
+                    util.app.loading();
+                    var data = {
+                        accountName: $this.form.phonenum,
+                        password: $this.form.password,
+                        captcha: $this.form.smscode,
+                        chickenName: this.form.baseName,
+                        fuzeren: this.form.principal
+                    };
+                    apiservice.register(data).then(function (resp) {
+                        util.app.hideLoading();
+                        if (resp) {
+                            setTimeout(function () {
+                                $this.close();
+                            }, 1000);
+                        }
+                    }).catch(function (err) {
+
+                    })
+                }
+            }
+        }
+    });
+</script>
+
+</html>

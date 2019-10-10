@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #a7a7a736;
+        }
+
+        #header {
+            color: white;
+            background-color: #1296db;
+            padding: 0.2rem 0 0 0.1rem;
+            border-bottom: 1px solid white;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+        .eui-item-title{
+            width: 100%;
+            height: 100%;
+            color: black;
+            padding:.1rem;
+        }
+        .eui-title-top{
+            font-size: 17px;
+            padding: .1rem 0 0 .1rem;
+        }
+        .eui-title-bottom{
+            width: 100%;
+            height: 30px;
+            display: flex;
+            margin: 5px 0;
+        }
+        .eui-bottom-center{
+            width: 43%;
+            display: flex;
+            font-size: 14px;
+            align-items: center;
+        }
+        .eui-bottom-center:last-child{
+            width:55%;
+        }
+        .eui-bottom-center img{
+            width: 20px;
+            height: 20px;
+        }
+        .item-title{
+            height: 2rem;
+            color: #1296db;
+            border-radius: 10px;
+            background-color: white;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                关于我们
+            </div>
+        </div>
+    </header>
+    <div class="eui-item-title">
+        <div class="item-title">
+            <div class="eui-title-top">
+                稷集溯源，禽畜养殖计步溯源，轨迹溯源，可视化溯源，集多种溯源于一体，实时数据更新，实施简便，数据准确可靠，是农业溯源的集成者！
+            </div>
+            <div class="eui-title-bottom">
+                <div class="eui-bottom-center" style="padding-left: 10px">
+                    <img src="../images/Phone(1).png" alt="">
+                    <p>：13436345846</p>
+                </div>
+                <div class="eui-bottom-center">
+                    <img src="../images/weixin.png" alt="">
+                    <p>：Ajijigongshe</p>
+                </div>
+            </div>
+            <div class="eui-title-bottom">
+                <div class="eui-bottom-center" style="padding-left: 10px">
+                    <img src="../images/QQ.png" alt="">
+                    <p>：2464004547</p>
+                </div>
+                <div class="eui-bottom-center">
+                    <img src="../images/email.png" alt="">
+                    <p>：2464004547@qq.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-guanyuwomen',
+
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+
+                form: {
+                    phonenum: '',
+                    smscode: '',
+                    password: ''
+                }
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                clearInterval($this.interval);
+                util.app.closeWindow(this.winname);
+            },
+            getCaptcha: function () {
+                var $this = this;
+                if (!$this.isCutdown && $this.formCheckPhonenum()) {
+                    $this.isCutdown = true;
+                    apiservice.gensmscode($this.form.phonenum).then(function (resp) {
+                        console.info(resp);
+                    });
+                    $this.interval = setInterval(function () {
+                        if (--$this.timer === 0) {
+                            clearInterval($this.interval);
+                            $this.timer = $this.cutdownTime;
+                            $this.isCutdown = false;
+                        }
+                    }, 1000);
+                }
+            },
+            formCheckPhonenum: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                return true;
+            },
+            formCheck: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                if (!$this.form.smscode) {
+                    util.app.toast('请输入验证码');
+                    return false;
+                }
+                if (!$this.form.password) {
+                    util.app.toast('请输入新密码');
+                    return false;
+                }
+                return true;
+            },
+            forget: function () {
+                var $this = this;
+                if ($this.formCheckPhonenum() && $this.formCheck()) {
+                    util.app.loading();
+                    var forgetData = {
+                        accountName: $this.form.phonenum,
+                        password: $this.form.password,
+                        captcha: $this.form.smscode
+                    };
+                    apiservice.updatePassword(forgetData).then(function (resp) {
+                        util.app.hideLoading();
+                        util.app.toast(resp.message);
+                        if (resp) {
+                            setTimeout(function () {
+                                $this.close();
+                            }, 1000);
+                        }
+                    });
+                }
+            }
+        }
+    });
+</script>
+
+</html>

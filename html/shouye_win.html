@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+    <link rel="stylesheet" href="../script/lib/swiper/css/swiper.css">
+    <link href="https://vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            /*background: #5547DA;*/
+        }
+
+        #header {
+            background: #1296db;
+            padding-top: 0.2rem;
+        }
+
+        .header {
+            width: 100%;
+            color: #ffffff;
+            height: 0.45rem;
+            line-height: 0.45rem;
+            justify-content: center;
+        }
+
+        .header1 img {
+            width: 0.3rem;
+            height: 0.3rem;
+            margin-right: 0.2rem;
+            vertical-align: middle;
+        }
+
+        .content-left img {
+            width: 100%;
+            height: 1.3rem;
+        }
+
+        .content-right-up img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin-left: 0.1rem;
+        }
+
+        .item-list img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin: 0 0.1rem;
+        }
+
+
+        .eui-gengduo > img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin: 0 .1rem;
+        }
+
+        .business-list img {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+
+        .lists img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin: 0 .1rem;
+        }
+
+        .btns .eui-btn {
+            width: 80%;
+            height: 0.5rem;
+        }
+
+        .eui-footer {
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            height: 0.5rem;
+            position: fixed;
+            align-items: center;
+            background: #1296db;
+            justify-content: space-around;
+            border-top: 0.01rem solid #1296db;
+        }
+
+        .eui-footer-item img {
+            width: 0.3rem;
+            height: 0.3rem;
+        }
+
+        /*中部选项卡*/
+        .topTabSwiper {
+            zoom: 1;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            border-top: 1px solid #ccc;
+            justify-content: space-around;
+            border-bottom: 1px solid #ccc;
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(192, 247, 252, 0.7)));
+        }
+
+        .topTabSwiper .Qie {
+            flex: 1;
+        }
+
+        .tab {
+            height: 50px;
+            display: flex;
+            margin: 0 auto;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tab img {
+            width: .15rem;
+            height: .15rem;
+        }
+
+        .swipers {
+            width: 100%;
+            height: 500px;
+            overflow-y: hidden;
+        }
+
+        .swipera {
+            width: 100%;
+            height: 500px;
+        }
+
+        /*选项卡*/
+        .swiper_con {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        /*选项卡内容样式*/
+        .eui-jcVideo {
+            width: 100%;
+            height: 290px;
+            margin-top: 10px;
+        }
+
+        /*选项卡图标*/
+        .tuBiao {
+            width: 17px;
+            height: 17px;
+        }
+
+        /*选项卡选中后样式*/
+        .active {
+            width: 100%;
+            color: #1296DB;
+            border-bottom: 2px solid #1296DB;
+        }
+
+        /*选项卡样式*/
+        .jiankongIcon {
+            width: 100%;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /*background-color: #8a8a8a;*/
+        }
+
+        .swiper-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .swiper-slide {
+            display: flex;
+            font-size: 18px;
+            background: #fff;
+            text-align: center;
+            align-items: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            -ms-flex-pack: center;
+            -ms-flex-align: center;
+            justify-content: center;
+            -webkit-box-pack: center;
+            -webkit-box-align: center;
+            /* Center slide text vertically */
+            -webkit-align-items: center;
+            -webkit-justify-content: center;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .swiper-slide .swiper-slide-active {
+            height: 150px !important;
+        }
+
+        .jieshaoImg {
+            width: 140px;
+            height: 130px;
+            border-radius: 5px;
+        }
+
+        .swiper-tab {
+            flex: 1;
+            width: 100%;
+            height: 35px;
+            display: flex;
+            margin: 0 auto;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid black;
+            border-bottom: 1px solid black;
+            background-color: antiquewhite;
+        }
+
+        .swiper-tab:last-child {
+            border-right: none;
+        }
+
+        .jianshu {
+            width: 100%;
+            height: 35px;
+            padding-top: 6px;
+            line-height: 35px;
+            margin-bottom: 3%;
+            text-align: center;
+        }
+        .miaoshu-left{
+            width: 100%;
+            display: flex;
+            height: 1.2rem;
+            margin: .1rem 0;
+            align-items: center;
+            border-radius: .1rem;
+            justify-content: center;
+            background-color: #a7a7a794;
+        }
+        .jcName{
+            width: 100%;
+            overflow:hidden;
+            display:-webkit-box;
+            -webkit-line-clamp:1;
+            word-break:break-all;
+            text-overflow:ellipsis;
+            -webkit-box-orient:vertical;
+        }
+        .jcQubu{
+            margin: 5px 0;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+    <script src="../script/lib/swiper/js/swiper.js"></script>
+    <script src="../script/lib/video.js"></script>
+    <script src="../script/lib/videojs-contrib-hls.min.js"></script>
+    <script src="https://webapi.amap.com/maps?v=1.4.15&key=556709f75c530f74618cf82e2ef7ac0e"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">首页</div>
+    </header>
+    <!--            轮播图-->
+    <div style="height: 27%;">
+        <div class="swiper-container">
+            <div class="swiper-wrapper"></div>
+            <!-- 如果需要分页器 -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+    <div class='topTabSwiper'>
+        <div class="Qie" @click="filterTab(1)">
+            <div>
+                <div class="tab">
+                    <img src="../images/miaoshu(2).png" class="dingBu">
+                    描述
+                </div>
+            </div>
+        </div>
+        <div class="Qie" @click="filterTab(2)">
+            <div>
+                <div class="tab">
+                    <img src="../images/weizhi(1).png" class="dingBu">
+                    位置
+                </div>
+            </div>
+        </div>
+        <div class="Qie" @click="filterTab(3)">
+            <div>
+                <div class="tab">
+                    <img src="../images/jiankong(1).png" class="dingBu">
+                    监控
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-show="tab === 1" class="swipera">
+        <!--            描述-->
+        <div class='swiper_con'>
+            <div class="wenzi" style="padding:0 10px 10px;overflow-y: auto;height:calc(100vh - 300px)">
+                <div class="miaoshu-left">
+                    <div style="margin-left: 10px">
+                        <div class="jcPrincipal">负责人:{{form.fuzeren?form.fuzeren:'暂无负责人信息'}}</div>
+                        <div class="jcDizhi">面积:{{form.area?form.area:'暂无基地面积'}}m²</div>
+                        <div class="jcDizhi"> 地址:{{form.address?form.address:'暂无基地地址'}}</div>
+                    <div class="jcName">名称:{{form.chickenName?form.chickenName:'暂无基地名称'}}</div>
+                </div>
+                </div>
+
+                <div class="jcDescribe">
+                    <div style="margin-top: 10px;padding: .1rem;float: left">
+                        <img :src="prefix + '/' + form.photo" class="jieshaoImg">
+                    </div>
+                    <div style="color: darkred;font-size: 18px;margin: 5px 0">基地描述:</div>
+                    <div style="margin-bottom:18%;font-size: 16px;word-break: break-word;line-height: 24px">{{form.detail?form.detail:'暂无基地描述'}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-show="tab === 2" class="swipers">
+        <div id="container" style="height: 100%;"></div>
+    </div>
+    <div v-show="tab === 3" class="swiperz">
+        <!-- 监控-->
+        <div v-if="jiankongs.length>0">
+            <div class='swiper_con'>
+                <div class="camera">
+                    <!-- 选项卡导航 -->
+                    <div class="jiankongIcon">
+                        <div class="swiper-tab" @click="switchTab(index)" v-for="(jiankong, index) in jiankongs"
+                             v-if="index<5"> <!--限制摄像头的个数最多为五个-->
+                            <div class="swiper-tab-list jiankongTab==index ? 'active' : ''">
+                                <img src="../images/SXT.png" class="tuBiao">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--切换的内容-->
+            <div class="tab-content">
+                <div v-if="jiankong" class="jianshu" style="">
+                    {{jiankong.orgName}}:{{jiankong.camera}}
+                </div>
+                <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"
+                       data-setup='{}' style='width: 100%;height: 240px'>
+                </video>
+            </div>
+        </div>
+        <div  v-else style="  text-align: center;padding-top: 20px;color: red;">
+           暂无监控视频
+        </div>
+    </div>
+    <div class="eui-footer">
+        <div class="eui-footer-item">
+            <img src="../images/flower-active.png" alt="">
+        </div>
+        <div class="eui-footer-item" @click="util.app.openWindow('window-home','./home_win.html')">
+            <img src="../images/man.png" alt="">
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-home',
+                isClick: true,
+                isVisible: false,
+                tab: 1,
+                jiankongTab: 0,
+                jiankongs: [],
+                jiankong: null,
+                id: null,
+                orgName: '',
+                camera: '',
+                roleName: null,
+                form: {
+                    chickenName: '',
+                    fuzeren: '',
+                    area: '',
+                    address: '',
+                    detail: '',
+                    banner: '',
+                    latitude: null,
+                    longitude: null,
+                    photo:'',
+                },
+                banner: null,
+                videoUrls: null,
+                myVideo: null,
+                map: null,
+                markers: []
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                var user = $api.getStorage('USER');
+                $this.roleName = user.roleName;
+                if ($this.roleName === 'YUANGONG') {
+                    $this.id = user.orgId;
+                } else {
+                    $this.id = user.id;
+                }
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getxinxi();
+
+                //调用地图
+                $this.map = new AMap.Map('container', {
+                    resizeEnable: true,
+                    zoom: 12,
+                });
+                // videojs 简单使用
+                this.myVideo = videojs('myVideo', {
+                    bigPlayButton: true,
+                    textTrackDisplay: true,
+                    posterImage: true,
+                    errorDisplay: true,
+                    language: 'zh-CN',
+                    controlBar: {
+                        captionsButton: true,
+                        chaptersButton: true,
+                        subtitlesButton: true,
+                        liveDisplay: true,
+                        playbackRateMenuButton: true
+                    }
+                });
+                $this.getVideo();
+            },
+            listen: function () {
+                util.app.listen('keyback', function () {
+                    api.closeWidget();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            },
+            closeModal: function () {
+                var $this = this;
+                $this.isVisible = false;
+            },
+            // 事件处理函数
+            filterTab(e) {
+                this.tab = e;
+                if (e === 3) {
+                    if (this.jiankongs.length > 0) {
+                        this.jiankong = this.jiankongs[0];
+                        this.playVideo(this.jiankong.videoUrl);
+                    }
+                }
+            },
+            //监控
+            playVideo(path) {
+                this.myVideo.src(path);
+                this.myVideo.ready(() => {
+                    this.myVideo.load();
+                    this.myVideo.play();
+                });
+            },
+            // 选项卡切换
+            switchTab(j, e) {
+                if (this.jiankongTab !== j) {
+                    this.jiankongTab = j;
+                    this.jiankong = this.jiankongs[j];
+                    this.playVideo(this.jiankong.videoUrl);
+                }
+            },
+            switchItem(index) {
+                this.$emit('changeTab', index)
+            },
+            //获取信息以及轮播图
+            getxinxi: function () {
+                var $this = this;
+                var swiper = new Swiper('.swiper-container', {
+                    loop: true,
+                    // 自动播放
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: '.swiper-pagination',
+                    },
+                });
+                apiservice.jichangxinxi($this.id).then(function (res) {
+                    $this.form = res;
+
+                    if (res.coordinate) {
+                        var lnglat = JSON.parse(res.coordinate);
+                        var position = new AMap.LngLat(lnglat.lng, lnglat.lat);
+                        $this.map.setCenter(position);
+                        $this.map.add(new AMap.Marker({position: position}));
+                    }
+
+                    swiper.appendSlide(res.banner.split(',').map(function (item) {
+                        return '<div class="swiper-slide" ><img src="' + prefix + '/' + item + '"></div>';
+                    }));
+                })
+            },
+            //获取基地监控
+            getVideo: function () {
+                var $this = this;
+                apiservice.jichangVideo($this.id).then(function (resp) {
+                    $this.jiankongs = resp;
+                });
+            },
+        },
+    });
+</script>
+
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #1296db;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+
+        .eui-item-parent {
+            width: 95%;
+            height: 5rem;
+            margin: 0 auto;
+            overflow-y: auto;
+            border-radius: .1rem;
+            background-color: #F4F4F4;
+        }
+
+        .head-icon {
+            width: 100%;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .head-icon img {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .eui-equipment-name {
+            width: 100%;
+            display: flex;
+            color: #A09FAF;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .eui-list .eui-item .eui-item-left {
+            width: 1rem;
+        }
+
+        .eui-btns {
+            width: 80%;
+            margin: 0.2rem 0;
+        }
+
+        .eui-btn {
+            height: 0.5rem;
+        }
+
+        .actions {
+            display: block;
+            font-size: 0.14rem;
+        }
+
+        .actions a {
+            margin-left: 0.16rem;
+            text-decoration: underline;
+        }
+
+        .eui-captcha .eui-btn {
+            width: 0.85rem;
+            font-size: 0.14rem;
+            height: 0.3rem !important;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                忘记密码
+            </div>
+        </div>
+    </header>
+    <div class="eui-item-parent">
+        <div class="head-icon">
+            <img src="../images/logo.png" alt="">
+        </div>
+        <div class="eui-equipment-name">
+            <div class="eui-list">
+                <div class="eui-item">
+                    <div class="eui-item-left">手机号码</div>
+                    <div class="eui-item-body">
+                        <input type="tel" class="eui-input" placeholder="请输入手机号码" v-model="form.phonenum"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">验证码</div>
+                    <div class="eui-item-body">
+                        <input class="eui-input" placeholder="请输入验证码" v-model="form.smscode"/>
+                    </div>
+                    <div class="eui-item-right eui-captcha">
+                        <button class="eui-btn eui-bg-passive" @click="getCaptcha()">
+                            {{isCutdown ? timer + 'S' : '获取验证码'}}
+                        </button>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">密码</div>
+                    <div class="eui-item-body">
+                        <input type="password" class="eui-input" placeholder="请输入新密码" v-model="form.password"/>
+                    </div>
+                </div>
+
+                <div class="eui-item">
+                    <div class="eui-item-left">确认密码</div>
+                    <div class="eui-item-body">
+                        <input type="password" class="eui-input" placeholder="请输入新密码" v-model="newPassword"/>
+                    </div>
+                </div>
+            </div>
+            <div class="eui-btns">
+                <button class="eui-btn eui-bg-passive" @click="forget()">修改密码</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-forget',
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+                newPassword:'',
+                form: {
+                    phonenum: '',
+                    smscode: '',
+                    password: '',
+                }
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                clearInterval($this.interval);
+                util.app.closeWindow(this.winname);
+            },
+            getCaptcha: function () {
+                var $this = this;
+                if (!$this.isCutdown && $this.formCheckPhonenum()) {
+                    $this.isCutdown = true;
+                    apiservice.gensmscode($this.form.phonenum).then(function (resp) {
+                        console.info(resp);
+                    });
+                    $this.interval = setInterval(function () {
+                        if (--$this.timer === 0) {
+                            clearInterval($this.interval);
+                            $this.timer = $this.cutdownTime;
+                            $this.isCutdown = false;
+                        }
+                    }, 1000);
+                }
+            },
+            formCheckPhonenum: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                return true;
+            },
+            formCheck: function () {
+                var $this = this;
+                if (!/^1\d{10}$/.test($this.form.phonenum)) {
+                    util.app.toast('请输入正确的手机号码');
+                    return false;
+                }
+                if (!$this.form.smscode) {
+                    util.app.toast('请输入验证码');
+                    return false;
+                }
+                if (!$this.form.password) {
+                    util.app.toast('请输入新密码');
+                    return false;
+                }
+                if (!/^.{6,}$/.test($this.form.password)) {
+                    util.app.toast('密码最少为六位');
+                    return false;
+                }
+                if($this.newPassword !== $this.form.password){
+                    util.app.toast('两次密码输入不一致');
+                    return false;
+                }
+                return true;
+            },
+            forget: function () {
+                var $this = this;
+                if ($this.formCheckPhonenum() && $this.formCheck()) {
+                    util.app.loading();
+                    var forgetData = {
+                        accountName: $this.form.phonenum,
+                        password: $this.form.password,
+                        captcha: $this.form.smscode
+                    };
+                    apiservice.updatePassword(forgetData).then(function (resp) {
+                        util.app.hideLoading();
+                        util.app.toast('密码修改成功');
+                        if (resp) {
+                            setTimeout(function () {
+                                $this.close();
+                            }, 1000);
+                        }
+                    });
+                }
+            }
+        }
+    });
+</script>
+
+</html>

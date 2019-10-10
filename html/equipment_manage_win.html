@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow-y: hidden;
+            background-color: #a7a7a736;
+        }
+
+        #header {
+            color: white;
+            background-color: #1296db;
+            padding: 0.2rem 0.1rem 0 0.1rem;
+        }
+
+        .eui-header .header {
+            text-align: center;
+        }
+
+        .eui-header {
+            border-bottom: none;
+        }
+        .eui-text{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            justify-content: center;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div  class="header-title">
+                设备管理
+            </div>
+        </div>
+    </header>
+</div>
+
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-equipment-manage',
+                frmname: 'frame-equipment-manage',
+                frmpath: './equipment_manage_frame.html'
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.openFrame();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            openFrame: function () {
+                var $this = this;
+                var headerHeight = $api.offset($api.byId("header")).h;
+                util.app.openFrame($this.frmname, $this.frmpath, {y: headerHeight}, {
+                    height: $api.winHeight - headerHeight
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            }
+        }
+    });
+</script>
+
+</html>

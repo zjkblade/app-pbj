@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            font-size: .16rem;
+            background-color: #1296db;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            justify-content: center;
+        }
+
+        .eui-item-parent {
+            width: 95%;
+            height: 5rem;
+            margin: 0 auto;
+            overflow-y: auto;
+            border-radius: .1rem;
+            background-color: #F4F4F4;
+        }
+
+        .head-icon {
+            width: 100%;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .head-icon img {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .eui-equipment-name {
+            width: 100%;
+            display: flex;
+            color: #A09FAF;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .eui-list {
+            border: none;
+        }
+
+        .eui-item-left {
+            width: 0.8rem;
+        }
+
+        .eui-btns {
+            width: 80%;
+            margin: 0.2rem 0;
+        }
+
+        .eui-btn {
+            height: 0.5rem;
+        }
+
+        .eui-container {
+            width: 80%;
+            display: flex;
+            color: #1296db;
+            font-weight: bold;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/filters.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">登录</div>
+    </header>
+    <div class="eui-item-parent">
+        <div class="head-icon">
+            <img src="../images/logo.png" alt="">
+        </div>
+        <div class="eui-equipment-name">
+            <div class="eui-list">
+                <div class="eui-item">
+                    <div class="eui-item-left">用户名</div>
+                    <div class="eui-item-body">
+                        <input type="tel" class="eui-input" placeholder="请输入用户登录" v-model="form.username"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">密码</div>
+                    <div class="eui-item-body">
+                        <input type="password" class="eui-input" placeholder="请输入密码" v-model="form.password"/>
+                    </div>
+                </div>
+                <div class="eui-item">
+                    <div class="eui-item-left">验证码</div>
+                    <div class="eui-item-body">
+                        <input type="text" class="eui-input" maxlength="4" placeholder="请输入图片验证码"
+                               v-model="form.captchaTmp"/>
+                    </div>
+                    <img :src="captchaUrl" alt="点击刷新验证码" @click="getVerification()">
+                </div>
+            </div>
+            <div class="eui-btns">
+                <button class="eui-btn eui-bg-passive" @click="login()">登录</button>
+            </div>
+            <div class="eui-container eui-content actions">
+                <a @click="util.app.openWindow('window-forget', './forget_win.html')">找回密码</a>
+                <a @click="util.app.openWindow('window-register', './register_win.html')">注册账号</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        filters: filters,
+        data: function () {
+            return {
+                winname: 'window-login',
+                form: {
+                    // username: '15705138478',
+                    // password: 'admin',
+                    username: '',
+                    password: '',
+                    captchaTmp: ''
+                },
+                captchaUrl: apiservice.verification()
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            $api.clearStorage();
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getVerification();
+            },
+            listen: function () {
+                util.app.listen('keyback', function () {
+                    api.closeWidget();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            },
+            // 获取验证码
+            getVerification: function () {
+                var $this = this;
+                $this.captchaUrl = apiservice.verification();
+            },
+            formCheck: function () {
+                var $this = this;
+                if (!$this.form.username) {
+                    util.app.toast('请输入用户名');
+                    return false;
+                }
+                if (!util.string.isPhone($this.form.username)) {
+                    util.app.toast('用户名输入不正确');
+                    return false;
+                }
+                if (!$this.form.password) {
+                    util.app.toast('请输入密码');
+                    return false;
+                }
+                if (!$this.form.captchaTmp) {
+                    util.app.toast('请输入图片验证码');
+                    return false;
+                }
+                return true;
+            },
+            login: function () {
+                var $this = this;
+                if ($this.formCheck()) {
+                    util.app.loading();
+                    var loginData = {
+                        userName: $this.form.username,
+                        password: $this.form.password,
+                        scope: 'paobujims',
+                        vaildUrl: '/wx/api/chickenfarm/login',
+                        captcha: $this.form.captchaTmp
+                    };
+                    apiservice.login(loginData).then(function (resp) {
+                        util.app.hideLoading();
+                        if (resp) {
+                            $api.setStorage('TOKEN', resp.access_token);
+                            apiservice.getUser().then(function (res) {
+                                if (res) {
+                                    $api.setStorage('USER', res);
+                                    util.app.openWindow('window-home', './home_win.html');
+                                }
+                            });
+                        }
+                    }).catch(function () {
+                        $this.getVerification();
+                    })
+                }
+            }
+        }
+    });
+</script>
+
+</html>

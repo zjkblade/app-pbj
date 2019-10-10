@@ -1,0 +1,54 @@
+.eui-icon {
+    width: 0.32rem;
+    height: 0.32rem;
+}
+
+.eui-icon-large {
+    width: 0.45rem;
+    height: 0.45rem;
+}
+
+.eui-icon-min {
+    width: 0.16rem;
+    height: 0.16rem;
+}
+
+.eui-icon-mid {
+    width: 0.2rem;
+    height: 0.2rem;
+}
+
+.eui-icon-back {
+    background: url("./../images/icon/icon-backs.svg") center no-repeat;
+    background-size: 0.25rem 0.25rem;
+}
+
+.eui-icon-saoyisao {
+    background: url("./../images/icon/Sao.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-add {
+    background: url("./../images/icon/TIAN.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-shebei {
+    background: url("./../images/icon/SHE.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-jihuan{
+    background: url("./../images/icon/XIANG.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-yuangong {
+    background: url("./../images/icon/YUANG.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-jichang {
+    background: url("./../images/icon/CHANG.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+.eui-icon-luru {
+    background: url("./../images/icon/JILU.svg") center no-repeat;
+    background-size: 100% 100%;
+}
+

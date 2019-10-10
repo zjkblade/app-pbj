@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            /*background: #00AAAA;*/
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+        }
+
+        img {
+            width: 0.4rem;
+            height: 0.4rem;
+            margin: 0 4%;
+        }
+
+        .add-image, .up-pic img {
+            color: #ddd;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-top: 2%;
+            margin-left: 2%;
+            cursor: pointer;
+            line-height: 95%;
+            font-size: 1.44rem;
+            text-align: center;
+            border-radius: 0.1rem;
+            background-color: #fff;
+        }
+
+        .picture_list {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0.1rem;
+            flex-direction: row;
+            align-items: flex-start;
+            align-content: flex-start;
+            justify-content: flex-start;
+        }
+
+        .picture {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .picture_item {
+            width: 45%;
+            height: 1.6rem;
+            margin: 0 0.05rem;
+            position: relative;
+        }
+
+        .picture_item .del {
+            z-index: 2;
+            color: #fff;
+            top: -0.08rem;
+            width: 0.2rem;
+            height: 0.2rem;
+            right: -0.05rem;
+            position: absolute;
+            text-align: center;
+            border-radius: 50%;
+            line-height: 0.2rem;
+            background-color: #f00;
+        }
+
+        .upload_progress {
+            top: 0;
+            color: #fff;
+            opacity: 0.7;
+            left: 0.02rem;
+            width: 1.57rem;
+            height: 1.5rem;
+            position: absolute;
+            font-size: 0.12rem;
+            text-align: center;
+            line-height: 1.5rem;
+            border-radius: 0.08rem;
+            background-color: #000;
+        }
+
+        .picture_item img {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .yes-upload {
+            color: #fff;
+            border-radius: 0.36rem;
+            background-color: #00a0e9;
+        }
+
+        .eui-btns {
+            margin-top: 0.15rem;
+        }
+        .eui-btn {
+            width: 80%;
+            margin: 0 auto;
+            color: #FAFDFF;
+            background: #1296db;
+            border-radius: 0.3rem;
+            box-shadow: 0 0.05rem 0 #DDE5F1;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                <div class="header-title" v-cloak>
+                    上传图片
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="picture_list">
+        <div v-for="(item,index) in updateImgs" class="picture_item">
+            <img :src="ip+item">
+            <div class='del' @click="deleteImg(index)">×</div>
+        </div>
+        <div v-for="(itemImg,index) in chooseImgs" class="picture_item">
+            <img :src="itemImg">
+            <div class='del' @click="deleteImg(index,'0')">×</div>
+        </div>
+        <div class='picture_item'>
+            <div class="add-image" @click="uploadPic()">
+                <div>+</div>
+            </div>
+        </div>
+    </div>
+    <div class="eui-btns">
+        <button class="eui-btn" @click="saveImg()">确认上传</button>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-updateImg',
+                id: null,
+                ip: prefix + '/',
+                jichang: {},
+                updateImgs: [],
+                chooseImgs: []
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            $this.id = $api.getStorage('USER').id;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+                $this.getImages();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname);
+            },
+            //初始化
+            initImage: function (data) {
+                var $this = this;
+                $this.jichang = data;
+                var banner = $this.jichang.banner;
+                $this.updateImgs = banner && banner.split(',').filter((item) => item) || [];
+
+            },
+            getImages: function () {
+                var $this = this;
+                apiservice.getChickenDetail($this.id).then(function (res) {
+                    if (res) {
+                        $this.initImage(res);
+                    }
+                })
+            },
+            // 选择图片
+            uploadPic: function () {
+                var $this = this;
+                var imgNum = $this.updateImgs.length + $this.chooseImgs.length;
+                if (imgNum >= 4) {
+                    util.app.toast('请删除原有图片后再上传');
+                    return false;
+                } else {
+                    api.actionSheet({
+                        title: '选择图片',
+                        buttons: ['拍照', '从相册选择']
+                    }, function (res) {
+                        var index = res.buttonIndex;
+                        if (index <= 2) {
+                            api.getPicture({
+                                sourceType: ['camera', 'library'][index - 1],
+                                mediaValue: "pic",
+                                destinationType: "url",
+                                allowEdit: true,
+                                encodingType: "jpg",
+                                quality: 40,
+                                saveToPhotoAlbum: true
+                            }, function (ret, err) {
+                                if (ret.data && !err) {
+                                    $this.chooseImgs.push(ret.data);
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            saveImg: function () {
+                var $this = this;
+                if ($this.updateImgs.length > 0) {
+                    let updateImgs = $this.updateImgs.join(',');
+                    $this.jichang.banner = updateImgs;
+                } else {
+                    $this.jichang.banner = '';
+                }
+                if ($this.chooseImgs.length > 0) {
+                    let promises = $this.chooseImgs.map(function (img) {
+                        return apiservice.uploadBanner($this.id, img)
+                    });
+                    Promise.all(promises).then(function (images) {
+                        $this.updateImgs = $this.updateImgs.concat(images);
+                        $this.chooseImgs = [];
+                        $this.saveChicken();
+                    });
+                }
+            },
+            saveChicken: function () {
+                var $this = this;
+                util.app.loading('正在上传...');
+                $this.jichang.banner = $this.updateImgs.join(',');
+                apiservice.saveChicken($this.jichang).then((res) => {
+                    util.app.hideLoading();
+                    $this.initImage(res);
+                    $this.close();
+                });
+
+            },
+            deleteImg: function (index, type) {
+                var $this = this;
+                if (type === '0') {
+                    $this.chooseImgs.splice(index, 1);
+                } else {
+                    $this.updateImgs.splice(index, 1);
+                }
+            }
+        }
+    });
+</script>
+
+</html>

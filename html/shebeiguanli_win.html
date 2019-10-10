@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            font-size: .16rem;
+            background-color: #5545D9;
+        }
+
+        #header {
+            color: white;
+            padding-top: .2rem;
+            background-color: #5545D9;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            justify-content: center;
+        }
+        .head-image {
+            width: 100%;
+            height: 180px;
+        }
+        .shebei {
+            width: 100%;
+            position: fixed;
+            height: calc(100% - 200px);
+            background: #3BB7DD;
+            overflow-y:auto;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            font-size: 13px;
+            background: #3BB7DD;
+            border-bottom: 1px dashed #ffffff;
+        }
+
+        .shiyi {
+            width: 100px;
+            height: 80px;
+            margin: 0 10px;
+        }
+
+        .item-list {
+            display: flex;
+            align-items: center;
+            line-height: 30px;
+            padding-top: 5px;
+        }
+
+        .tubiao {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        .eui-loading{
+            color: #ffffff;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/filters.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left eui-icon-back" @click="close()"></div>
+            <div class="header-title">设备管理</div>
+        </div>
+    </header>
+    <div class="eui-content-body">
+        <div class="head-image">
+            <image src="/images/datu.png" style="width: 100%;height: 180px"></image>
+        </div>
+        <div class="shebei">
+<!--            <div class="item" wx:for="{{sheBeis}}" wx:for-item="shebei" wx:key="shebei">-->
+            <div class="item">
+                <image src="/images/shiyitu.png" class="shiyi"></image>
+                <div>
+                    <div class="item-list">
+                        <image class="tubiao" src="/images/zuzhijigou.png"></image>
+<!--                        <view>组织机构名称：{{shebei.orgName}}</view>-->
+                        <div>组织机构名称：</div>
+                    </div>
+                    <div class="item-list">
+                        <image class="tubiao" src="/images/SIM.png"></image>
+<!--                        <view>SIM卡号：{{shebei.simNo}}</view>-->
+                        <div>SIM卡号：</div>
+                    </div>
+                    <div class="item-list">
+                        <image class="tubiao" src="/images/shebeidianya.png"></image>
+<!--                        <view>设备电压：{{shebei.deviceVoltage?shebei.deviceVoltage:'无'}}</view>-->
+                        <div>设备电压：</div>
+                    </div>
+                    <div class="item-list">
+                        <image class="tubiao" src="/images/GPS.png"></image>
+<!--                        <view class="last">GPS定位状态：{{shebei.gpsState?shebei.gpsState:'无'}}</view>-->
+                        <div class="last">GPS定位状态：</div>
+                    </div>
+                </div>
+            </div>
+            <view class="eui-loading">
+                <block>
+                    <text></text>
+<!--                    <block wx:if="{{sheBeis.length === 0}}">没有查询到数据</block>-->
+<!--                    <block wx:else>没有更多数据了</block>-->
+                    <text></text>
+                </block>
+            </view>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        filters: filters,
+        data: function () {
+            return {
+                winname: 'window-shebeiguanli',
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            $api.clearStorage();
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    api.closeWidget();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            },
+        }
+    });
+</script>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="./css/app.css" rel="stylesheet">
+    <script src="./script/lib/app.responsive.min.js"></script>
+    <script src="./script/lib/vue.min.js"></script>
+    <script src="./script/lib/api.min.js"></script>
+    <script src="./script/lib/jquery-3.4.1.min.js"></script>
+    <script src="./script/common.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    new Vue({
+        el: "#app",
+        data: function () {
+            return {};
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    api.setStatusBarStyle({style: 'dark'})
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                util.app.openWindow('window-login', './html/login_win.html');
+            }
+        }
+    });
+</script>
+
+</body>
+
+</html>

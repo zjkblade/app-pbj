@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        #app {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #a7a7a736;
+        }
+
+        #header {
+            color: white;
+            padding: 0.2rem 0 0 0.1rem;
+            background-color: #1296db;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.5rem;
+            /*justify-content: center;*/
+        }
+        .eui-item-title{
+            width: 100%;
+            margin-top: .2rem;
+        }
+        .Password{
+            width: 96%;
+            height: 60px;
+            display: flex;
+            margin: 0 auto;
+            padding: 0 .1rem;
+            align-items: center;
+            background-color: white;
+            justify-content: space-between;
+            border-bottom: 1px solid #5e5e5e;
+        }
+        .Password:first-child{
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .Password:last-child{
+            border: none;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        input{
+            text-align:right;
+        }
+        .eui-btns {
+              width: 80%;
+              margin: 2rem auto;
+          }
+        .eui-btn {
+            height: 0.5rem;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/md5.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header">
+            <div class="header-left" @click="close()">
+                <span class="eui-icon eui-icon-back"></span>
+            </div>
+            <div class="header-title">
+                修改密码
+            </div>
+        </div>
+    </header>
+    <div class="eui-item-title">
+        <div class="Password">
+            <div class="password-yuan">
+                原密码：
+            </div>
+            <div class="password-yuan">
+                <input type="text" password="{{true}}" v-model="form.yonghuming" placeholder="请输入原密码">
+            </div>
+        </div>
+        <div class="Password">
+            <div class="password-yuan">
+                新密码：
+            </div>
+            <div class="password-yuan">
+                <input type="password" password="{{true}}" v-model="form.password" placeholder="请输入新密码">
+            </div>
+        </div>
+        <div class="Password">
+            <div class="password-yuan">
+                请确认新密码：
+            </div>
+            <div class="password-yuan">
+                <input type="password" password="{{true}}" v-model="form.newPassword" placeholder="请确认新密码">
+            </div>
+        </div>
+    </div>
+    <div class="eui-btns">
+        <button class="eui-btn eui-bg-passive" @click="forget()">确认修改</button>
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-xiugaimima',
+                interval: 0,
+                cutdownTime: 60,
+                timer: 60,
+                isCutdown: false,
+                cfId: null,
+                form: {
+                    yonghuming: null,
+                    password: null,
+                    newPassword: null
+                }
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            $this.cfId = $api.getStorage('USER').id;
+            util.app.ready(function () {
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        formChange(field, event) {
+            this.form[field] = event.detail.value;
+        },
+
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                var $this = this;
+                util.app.listen('keyback', function () {
+                    $this.close();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname);
+            },
+            formCheck: function () {
+                var $this = this;
+                if (!$this.form.yonghuming) {
+                    util.app.toast('请输入原密码');
+                    return false;
+                }
+                if (!$this.form.password) {
+                    util.app.toast('请输入新密码');
+                    return false;
+                }
+                if (!this.form.newPassword) {
+                    util.app.toast('请输入新密码!');
+                    return false;
+                }
+                if (this.form.newPassword !== this.form.password) {
+                    util.app.toast('两次密码输入不一样!');
+                    return false;
+                }
+                return true;
+            },
+
+            forget:function(){
+                var $this = this;
+                if($this.formCheck()){
+                    var passdata = {
+                        cfId: $this.cfId,
+                        password: $this.form.yonghuming,
+                        newPassword: $this.form.newPassword
+                    };
+                    apiservice.xiugaimima(passdata).then(function(resp){
+                        util.app.hideLoading();
+                        util.app.toast('密码修改成功');
+                        if (resp) {
+                            setTimeout(function () {
+                                util.app.openWindow('window-login','./login_win.html');
+                            }, 1000);
+                        }
+                    });
+                }
+            },
+        }
+    });
+</script>
+
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-rim-auto-match" content="none">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width">
+    <link href="../css/app.css" rel="stylesheet">
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+            /*background: #5547DA;*/
+        }
+
+        #header {
+            background: #1296db;
+            padding-top: 0.2rem;
+        }
+
+        .header {
+            width: 100%;
+            height: 0.45rem;
+            line-height: 0.45rem;
+            color: #ffffff;
+            justify-content: center;
+        }
+
+        .header1 img {
+            width: 0.3rem;
+            height: 0.3rem;
+            vertical-align: middle;
+            margin-right: 0.2rem;
+        }
+
+        .content {
+            height: 0.7rem;
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            background: #1296db;
+        }
+
+        .content-left {
+            width: 0.5rem;
+            height: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 0.1rem;
+        }
+
+        .content-left img {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+
+        .content-right-up {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.14rem;
+        }
+
+        .content-right-up img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin-left: 0.1rem;
+        }
+
+        .item-list img {
+            margin: 0 0.1rem;
+            width: 0.2rem;
+            height: 0.2rem;
+        }
+
+
+        .eui-gengduo > img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin: 0 .1rem;
+        }
+
+        .business-list img {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+
+        .lists {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 0.01rem solid #e3e3e3;
+        }
+
+        .lists.active {
+            display: none;
+        }
+
+        .list {
+            display: flex;
+            height: 0.45rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lists img {
+            width: 0.2rem;
+            height: 0.2rem;
+            margin: 0 .1rem;
+        }
+
+        .btns {
+            display: flex;
+            margin-top: 0.18rem;
+            justify-content: center;
+        }
+
+        .btns .eui-btn {
+            width: 80%;
+            height: 0.5rem;
+        }
+
+        .eui-footer {
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            height: 0.5rem;
+            position: fixed;
+            background: #1296db;
+            align-items: center;
+            justify-content: space-around;
+            border-top: 0.01rem solid #1296db;
+        }
+
+        .eui-footer-item, img {
+            width: 0.3rem;
+            height: 0.3rem;
+        }
+    </style>
+
+    <script src="../script/lib/app.responsive.min.js"></script>
+    <script src="../script/lib/vue.min.js"></script>
+    <script src="../script/lib/api.min.js"></script>
+    <script src="../script/lib/jquery-3.4.1.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/service.js"></script>
+</head>
+<body>
+<div id="app">
+    <header class="eui-header" id="header">
+        <div class="header" v-cloak>个人中心</div>
+    </header>
+    <div class="content">
+        <div class="content-left">
+            <img src="../images/logo.png" alt="">
+        </div>
+        <div>
+            <div class="content-right-up">
+                <div style="font-size: 0.18rem;" v-cloak>{{realName}}</div>
+            </div>
+            <div v-cloak>{{userName}}</div>
+        </div>
+    </div>
+    <div style="margin-top: 15px;background-color: white">
+        <div class="lists" @click="util.app.openWindow('window_add_equipments','./add_equipments_win.html')"
+             :class="{active:roleName === 'YUANGONG'}">
+            <div class="list" v-cloak>
+                <img src="../images/icon/TIAN.svg" alt="">
+                <span v-cloak>添加设备</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" @click="util.app.openWindow('window-equipment-manage','./equipment_manage_win.html')">
+            <div class="list" v-cloak>
+                <img src="../images/icon/SHE.svg" alt="">
+                <span v-cloak>设备管理</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" @click="util.app.openWindow('window-cock-ring','./cock_ring_win.html')">
+            <div class="list" v-cloak>
+                <img src="../images/icon/XIANG.svg" alt="">
+                <span v-cloak>鸡环详情</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" v-cloak @click="util.app.openWindow('window-jichangguanli','./jichangguanli_win.html')"
+             :class="{active:roleName === 'YUANGONG'}">
+            <div class="list" v-cloak>
+                <img src="../images/icon/CHANG.svg" alt="">
+                <span v-cloak>基地管理</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" v-cloak @click="util.app.openWindow('window-staff','./staff_win.html')"
+             :class="{active:roleName === 'YUANGONG'}">
+            <div class="list" v-cloak>
+                <img src="../images/icon/YUANG.svg" alt="">
+                <span v-cloak>员工管理</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" v-cloak @click="util.app.openWindow('window-luruxinxi','./luruxinxi_win.html')">
+            <div class="list" v-cloak>
+                <img src="../images/icon/JILU.svg" alt="">
+                <span v-cloak>录入信息</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 15px;background-color: white">
+        <div class="lists" v-cloak @click="util.app.openWindow('window-xiugaimima','./xiugaimima_win.html')">
+            <div class="list" v-cloak>
+                <img src="../images/icon/XIUGAI.svg" alt="">
+                <span v-cloak>修改密码</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+        <div class="lists" v-cloak @click="util.app.openWindow('window-guanyuwomen','./guanyuwomen_win.html')">
+            <div class="list" v-cloak>
+                <img src="../images/icon/GUANYU.svg" alt="">
+                <span v-cloak>关于我们</span>
+            </div>
+            <div>
+                <img src="../images/youjiantou.png" alt="">
+            </div>
+        </div>
+    </div>
+    <div class="btns">
+        <button class="eui-btn eui-bg-passive" @click="loginOut()">退出登录</button>
+    </div>
+    <div class="eui-footer">
+        <div class="eui-footer-item" @click="util.app.openWindow('window-main','./shouye_win.html')">
+            <img src="../images/flower.png" alt="">
+        </div>
+        <div class="eui-footer-item"><img src="../images/man-active.png" alt="">
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                winname: 'window-home',
+                isClick: true,
+                isVisible: false,
+                userName: null,
+                roleName: null,
+                realName: null,
+            };
+        },
+        mounted: function () {
+            var $this = this;
+            util.app.ready(function () {
+                var user = $api.getStorage('USER');
+                $this.userName = user.userName;
+                $this.roleName = user.roleName;
+                $this.realName = user.realName;
+                if (util.app.isProd()) {
+                    $api.fixStatusBar($api.byId('header'));
+                }
+                $this.init();
+            });
+        },
+        methods: {
+            init: function () {
+                var $this = this;
+                $this.listen();
+            },
+            listen: function () {
+                util.app.listen('keyback', function () {
+                    api.closeWidget();
+                });
+                util.app.listen('viewappear', function () {
+                });
+            },
+            close: function () {
+                var $this = this;
+                util.app.closeWindow($this.winname)
+            },
+            closeModal: function () {
+                var $this = this;
+                $this.isVisible = false;
+            },
+            loginOut: function () {
+                util.app.openWindow('window_login', './login_win.html');
+            }
+        }
+    });
+</script>
+
+</html>
